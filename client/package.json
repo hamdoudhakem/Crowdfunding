@@ -4,15 +4,18 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
+    "deploy": "yarn build && npx thirdweb@latest upload dist",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@thirdweb-dev/react": "4",
+    "@thirdweb-dev/sdk": "4",
+    "ethers": "^5.7.2",
     "react": "^18.3",
     "react-dom": "^18.3",
-    "react-router-dom": "^6.27.0",
-    "thirdweb": "^5"
+    "react-router-dom": "^6.27.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",
