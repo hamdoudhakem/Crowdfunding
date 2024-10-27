@@ -1,10 +1,12 @@
 import { ethers } from "ethers";
 
 export interface Form {
-  name: string;
+  pId?: number;
+  owner: string;
   title: string;
   description: string;
-  target: string | ethers.BigNumber;
+  target: string;
   deadline: string;
   image: string;
+  amountCollected: string;
 }
