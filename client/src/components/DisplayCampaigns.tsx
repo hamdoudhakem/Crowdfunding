@@ -51,6 +51,7 @@ const DisplayCampaigns = ({
             <FundCard
               key={campaign.pId}
               {...campaign}
+              target={campaign.target as string}
               handleCLick={() => handleNavigate(campaign)}
             />
           ))}

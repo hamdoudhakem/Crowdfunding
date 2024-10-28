@@ -5,7 +5,7 @@ import { useStateContext } from "../context";
 import { CustomButton } from "./";
 import { logo, menu, search, thirdweb } from "../assets";
 import { navlinks } from "../constants";
-import { metamaskWallet } from "@thirdweb-dev/react";
+import { metamaskWallet, useDisconnect } from "@thirdweb-dev/react";
 
 const metamaskConfig = metamaskWallet();
 
@@ -13,8 +13,22 @@ const NavBar = () => {
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
-  const { connect, address } = useStateContext();
-  // const address = "fdsqdsf";
+  const { connect, disconnect, address } = useStateContext();
+
+  const handleConnect = async () => {
+    if (address) {
+      navigate("create-campaign");
+    } else {
+      console.log("connect() will be called");
+      try {
+        await connect(metamaskConfig);
+      } catch (error) {
+        console.error("error connecting", error);
+      }
+    }
+
+    setToggleDrawer(false);
+  };
 
   return (
     <div className="flex md:flex-row flex-col-reverse justify-between mb-[35px] gap-6">
@@ -38,18 +52,7 @@ const NavBar = () => {
           btnType="button"
           title={address ? "Create a campaign" : "Connect"}
           styles={address ? "bg-[#1dc071]" : "bg-[#8c6dfd]"}
-          handleClick={() => {
-            if (address) {
-              navigate("create-campaign");
-            } else {
-              console.log("connect() will be called");
-              try {
-                connect(metamaskConfig);
-              } catch (error) {
-                console.error("error connecting", error);
-              }
-            }
-          }}
+          handleClick={handleConnect}
         />
 
         <Link to="/profile">
@@ -65,13 +68,17 @@ const NavBar = () => {
 
       {/* Small Screen navigation */}
       <div className="sm:hidden flex justify-between items-center relative">
-        <div className="w-[40px] h-[40px] rounded-[10px] bg-[#2c2f32] flex justify-center items-center cursor-pointer">
+        <Link
+          to={"/"}
+          onClick={() => setIsActive("dashboard")}
+          className="w-[40px] h-[40px] rounded-[10px] bg-[#2c2f32] flex justify-center items-center cursor-pointer"
+        >
           <img
             src={logo}
             alt="user"
             className="w-[60%] h-[60%] object-contain "
           />
-        </div>
+        </Link>
 
         <img
           src={menu}
@@ -92,6 +99,21 @@ const NavBar = () => {
                 className={`flex
                 p-4 ${isActive === link.name && "bg-[#3a3a43]"} `}
                 onClick={() => {
+                  if (link.disabled) {
+                    setToggleDrawer(false);
+                    return;
+                  }
+
+                  if (link.name === "logout") {
+                    if (address) {
+                      disconnect();
+                      setIsActive("dashboard");
+                      setToggleDrawer(false);
+                      navigate("/");
+                    }
+                    return;
+                  }
+
                   setIsActive(link.name);
                   setToggleDrawer(false);
                   navigate(link.link);
@@ -119,22 +141,7 @@ const NavBar = () => {
               btnType="button"
               title={address ? "Create a campaign" : "Connect"}
               styles={address ? "bg-[#1dc071]" : "bg-[#8c6dfd]"}
-              handleClick={() => {
-                console.log(
-                  "I will check for the adress before calling connect()"
-                );
-
-                if (address) {
-                  navigate("create-campaign");
-                } else {
-                  console.log("connect() will be called");
-                  try {
-                    // connect(metamaskConfig);
-                  } catch (error) {
-                    console.error("error connecting", error);
-                  }
-                }
-              }}
+              handleClick={handleConnect}
             />
           </div>
         </div>

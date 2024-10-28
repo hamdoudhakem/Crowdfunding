@@ -21,6 +21,10 @@ const StateContext = createContext<{
   createCampaign: (form: Form) => Promise<void>;
   getCampaigns: () => Promise<Form[]>;
   getUserCampaigns: () => Promise<Form[]>;
+  donate: (pId: number, amount: number) => Promise<any>;
+  getDonators: (
+    pId: number
+  ) => Promise<{ donator: string; donation: string }[]>;
 } | null>(null);
 
 export const StateContextProvider = ({ children }: { children: ReactNode }) => {
@@ -93,7 +97,29 @@ export const StateContextProvider = ({ children }: { children: ReactNode }) => {
     return filteredCampaigns;
   };
 
-  const donate = async (pId, amount) => {};
+  const donate = async (pId: number, amount: number) => {
+    const data = await contract?.call("donateToCampaign", [pId], {
+      value: ethers.utils.parseEther(amount.toString()),
+    });
+
+    return data;
+  };
+
+  const getDonators = async (pId: number) => {
+    const donations = await contract?.call("getDonators", [pId]);
+    const numberOfDonations = donations[0].length;
+
+    const parsedDonations = [];
+
+    for (let i = 0; i < numberOfDonations; i++) {
+      parsedDonations.push({
+        donator: donations[0][i],
+        donation: ethers.utils.formatEther(donations[1][i].toString()),
+      });
+    }
+
+    return parsedDonations;
+  };
 
   return (
     <StateContext.Provider
@@ -105,6 +131,8 @@ export const StateContextProvider = ({ children }: { children: ReactNode }) => {
         createCampaign: publishCampaign,
         getCampaigns,
         getUserCampaigns,
+        donate,
+        getDonators,
       }}
     >
       {children}

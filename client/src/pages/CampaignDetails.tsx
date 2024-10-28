@@ -1,29 +1,60 @@
 import React, { useState, useEffect } from "react";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 
 import { useStateContext } from "../context";
-import { CustomButton, CountBox } from "../components";
+import { CustomButton, CountBox, Loader } from "../components";
 import { calculateBarPercentage, daysLeft } from "../utils";
 import { thirdweb } from "../assets";
 import { Form } from "../types";
 
 export const CampaignDetails = () => {
   const { state }: { state: Form } = useLocation();
-  const { getDonations, contract, address } = useStateContext();
+  const navigate = useNavigate();
+  const { donate, getDonators, contract, address } = useStateContext();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [donators, setDonators] = useState([]);
+  const [amount, setAmount] = useState(0);
+  const [donators, setDonators] = useState<
+    { donator: any; donation: string }[]
+  >([]);
 
   const remainingDays = daysLeft(parseInt(state.deadline));
 
-  const handleDonate = async () => {};
+  const fetchDonators = async () => {
+    try {
+      const data = await getDonators(state.pId!);
+
+      console.log("donators: ", data);
+
+      setDonators(data);
+    } catch (err) {
+      console.log("error fetching donators:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (contract) fetchDonators();
+  }, [contract, address]);
+
+  const handleDonate = async () => {
+    try {
+      setIsLoading(true);
+
+      await donate(state.pId!, amount);
+
+      navigate("/");
+    } catch (err) {
+      console.log("error while donating: ", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div>
-      {isLoading && "Loading..."}
+      {isLoading && <Loader />}
 
       <div className="w-full flex md:flex-row flex-col mt-10 gap-[30px]">
         <div className="flex-1 flex-col">
@@ -37,7 +68,7 @@ export const CampaignDetails = () => {
               className="absolute h-full bg-[#4acd8d]"
               style={{
                 width: `${calculateBarPercentage(
-                  parseFloat(state.target),
+                  parseFloat(state.target as string),
                   parseFloat(state.amountCollected)
                 )}%`,
                 maxWidth: "100%",
@@ -100,7 +131,19 @@ export const CampaignDetails = () => {
 
             <div className="mt-[20px] flex flex-col gap-4">
               {donators.length > 0 ? (
-                donators.map((item, index) => <div>Donator</div>)
+                donators.map((item, index) => (
+                  <div
+                    key={`item.donator-${index}`}
+                    className="flex justify-center items-center gap-4"
+                  >
+                    <p className="font-epilogue font-normal text-[16px] text-[#b2b3bd] leading-[26px] break-all">
+                      {index + 1}. {item.donator}
+                    </p>
+                    <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] break-all">
+                      {item.donation} ETH
+                    </p>
+                  </div>
+                ))
               ) : (
                 <p className="font-epilogue font-normal text-[16px] leading-[26px] text-justify text-[#808191]">
                   No donators yet, be the first one
@@ -130,7 +173,7 @@ export const CampaignDetails = () => {
                 step="0.01"
                 className="w-full py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => setAmount(parseFloat(e.target.value))}
               />
 
               <div className="my-[20px] p-4 bg-[#13131a] rounded-[10px]">

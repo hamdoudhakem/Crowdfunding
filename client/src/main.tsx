@@ -26,7 +26,6 @@ root.render(
       coinbaseWallet(),
       walletConnect(),
     ]}
-    // clientId="714e9827ce9001db6eeb5062d46d3c17"
   >
     <Router>
       <StateContextProvider>

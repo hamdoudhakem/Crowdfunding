@@ -47,7 +47,7 @@ const SideBar = () => {
 
   return (
     <div className="flex justify-between items-center flex-col sticky top-5 h-[93vh]">
-      <Link to="/">
+      <Link to="/" onClick={() => setIsActive("dashboard")}>
         <Icon styles="w-[52px] h-[52px] bg-[#2c2f32]" imgUrl={logo} />
       </Link>
 
@@ -61,6 +61,8 @@ const SideBar = () => {
               handleCLick={() => {
                 if (link.name === "logout") {
                   disconnect();
+                  setIsActive("dashboard");
+                  navigate("/");
                 } else if (!link.disabled) {
                   setIsActive(link.name);
                   navigate(link.link);
