@@ -9,7 +9,11 @@ CrowdFunder is a decentralized web3 crowdfunding platform built with ReactJS, Vi
 
 ## ScreenShots
 Here are some screenshots showcasing the app:
-![Screenshots](showcase/screenshots.png)
+| Feature            | Screenshot                              |
+|--------------------|-----------------------------------------|
+| **Home Screen**    | ![Home Screen](showcase/Home.png) |
+| **Campaign Details** | ![Restaurant List](showcase/CampaignDetails.png) |
+| **Create Campaign** | ![Basket Management](showcase/CreateCampaign.png) |
 
 ## Prerequisites
 Before you begin, ensure you have met the following requirements:
